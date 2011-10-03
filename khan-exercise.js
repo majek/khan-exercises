@@ -1390,6 +1390,16 @@ function prepareSite() {
 	jQuery("#check-answer-button").click( handleSubmit );
 	jQuery("#answerform").submit( handleSubmit );
 
+	// set up hover event for streak-stats
+	jQuery("#streak-bar-container").hover(
+	  function(evt){
+	    jQuery(".streak-stats").hoverFlow(evt.type, {top:"0"}, 365);
+	  },
+	  function(evt){
+	    jQuery(".streak-stats").delay(800).hoverFlow(evt.type, {top:"-20"}, 365);
+	  }
+	);
+
 	// Build the data to pass to the server
 	function buildAttemptData(pass, attemptNum, attemptContent, curTime) {
 		return {
@@ -2141,6 +2151,16 @@ function updateData( data ) {
 	} else {
 		data = oldData;
 	}
+
+
+  console.log(data)
+
+  jQuery(".streak-stats").empty()
+    .append("<div><strong>Total Correct:</strong> "+data.total_correct+"</div>")
+    .append("<div><strong>Longest Streak:</strong> "+data.longest_streak+"</div>")
+    .animate({top:"0"},275)
+    .delay(1240)
+    .animate({top:"-20"},450);
 
 	// Update the streaks/point bar
 	var streakMaxWidth = jQuery(".streak-bar").width(),
