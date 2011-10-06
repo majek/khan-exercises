@@ -779,6 +779,11 @@ function makeProblem( id, seed ) {
 	// Remove and store hints to delay running modules on it
 	hints = problem.children( ".hints" ).remove();
 
+	// Remove the hint box if there are no hints in the problem
+	if ( hints.length === 0 ) {
+		jQuery( ".hint-box" ).remove();
+	}
+
 	// Run the main method of any modules
 	problem.runModules( problem, "Load" );
 	problem.runModules( problem );
@@ -1686,14 +1691,14 @@ function prepareSite() {
 			email = jQuery( "#issue-email" ).val(),
 			path = exerciseName + ".html"
 				+ "?seed=" + problemSeed
-				+ "&problem=" + problemID
-				+ ( exercise.data( "name" ) != null && exercise.data( "name" ) !== exerciseName ? " (" + exercise.data( "name" ) + ")" : "" ),
+				+ "&problem=" + problemID,
+			pathlink = "[" + path + ( exercise.data( "name" ) != null && exercise.data( "name" ) !== exerciseName ? " (" + exercise.data( "name" ) + ")" : "" ) + "](http://sandcastle.khanacademy.org/media/castles/Khan:master/exercises/" + path + ")",
 			agent = navigator.userAgent,
 			mathjaxInfo = "MathJax is " + ( typeof MathJax === "undefined" ? "NOT loaded" :
 				( "loaded, " + ( MathJax.isReady ? "" : "NOT ") + "ready, queue length: " + MathJax.Hub.queue.queue.length ) ),
 			localStorageInfo = ( typeof localStorage === "undefined" || typeof localStorage.getItem === "undefined" ? "localStorage NOT enabled" : null ),
 			warningInfo = jQuery( "#warning-bar-content" ).text(),
-			parts = [ email ? "Reporter: " + email : null, jQuery( "#issue-body" ).val() || null, path, "    " + JSON.stringify( guessLog ), agent, localStorageInfo, mathjaxInfo, warningInfo ],
+			parts = [ email ? "Reporter: " + email : null, jQuery( "#issue-body" ).val() || null, pathlink, "    " + JSON.stringify( guessLog ), agent, localStorageInfo, mathjaxInfo, warningInfo ],
 			body = jQuery.grep( parts, function( e ) { return e != null; } ).join( "\n\n" );
 
 		var mathjaxLoadFailures = jQuery.map( MathJax.Ajax.loading, function( info, script ) {
@@ -2045,6 +2050,10 @@ function prevProblem( num ) {
 function prepareUserExercise( data ) {
 	// Update the local data store
 	updateData( data );
+	
+	if ( data.exercise ) {
+		exerciseName = data.exercise;
+	}
 
 	if ( user != null ) {
 		// How far to jump through the problems
@@ -2221,9 +2230,11 @@ function updateData( data ) {
 							"/images/" + sPrefix + "-not-started.png";
 		jQuery("#exercise-icon-container img").attr("src", src);
 	}
+	
 	var videos = data && data.exercise_model.related_videos;
 	if ( videos && videos.length &&
-		jQuery(".related-video-list").is(":empty")
+		jQuery(".related-video-list").is(":empty") &&
+		typeof ModalVideo !== "undefined"
 	) {
 		displayRelatedVideos(videos);
 		ModalVideo && ModalVideo.hookup();
@@ -2267,9 +2278,11 @@ function displayRelatedVideos( videos ) {
 		jQuery( "#related-video-list .related-video-list" ).append( sideBarLi );
 	};
 
-	jQuery.each(videos, displayRelatedVideoInHeader);
-	jQuery.each(videos, displayRelatedVideoInSidebar);
-	jQuery( ".related-content, .related-video-box" ).show();
+	if ( jQuery.fn.tmplPlugin ) {
+		jQuery.each(videos, displayRelatedVideoInHeader);
+		jQuery.each(videos, displayRelatedVideoInSidebar);
+		jQuery( ".related-content, .related-video-box" ).show();
+	}
 
 	// make caption slide up over the thumbnail on hover
 	var captionHeight = 45;

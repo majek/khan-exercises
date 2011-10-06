@@ -2,40 +2,35 @@
 <html data-require="math graphie graphie-helpers-arithmetic">
 <head>
 	<meta charset="UTF-8" />
-	<title>Division 1.5</title>
+	<title>Dividing decimals 2</title>
 	<script src="../khan-exercise.js"></script>
 </head>
 <body>
 	<div class="exercise">
 		<div class="vars">
-			<var id="DIVISOR">randRange( 2, 9 )</var>
-			<var id="NUM_DIGITS">randRange( 2, 3 )</var>
-			<var id="MAX_QUOTIENT_DIGIT">floor( 9 / DIVISOR )</var>
-			<var id="QUOTIENT">
-				(function() {
-					var quotient = randRange( 1, MAX_QUOTIENT_DIGIT );
-					for ( var i = 1; i &lt; NUM_DIGITS; i++ ){
-						quotient *= 10;
-						quotient += randRange( 0, MAX_QUOTIENT_DIGIT );
-					}
-					return quotient;
-				})()
-			</var>
+			<var id="DIVISOR">randRange( 2, 15 )</var>
+			<var id="QUOTIENT" data-ensure="QUOTIENT % 10 !== 0">randRange( 10, 99 )</var>
 			<var id="DIVIDEND">DIVISOR * QUOTIENT</var>
+			<var id="DIVISOR_DECIMAL">randRange( 1, digits( DIVISOR ).length )</var>
+			<var id="DIVIDEND_DECIMAL">0</var>
+			<var id="QUOTIENT_DECIMAL">DIVIDEND_DECIMAL - DIVISOR_DECIMAL</var>
 			<var id="DUMMY">[]</var>
 		</div>
 
 		<div class="problems">
 			<div>
 				<div class="graphie" id="numbers">
-					graph.divider = new Divider( DIVISOR, DIVIDEND );
+					graph.divider = new Divider( DIVISOR, DIVIDEND, DIVISOR_DECIMAL, DIVIDEND_DECIMAL );
 					graph.divider.show();
 					DUMMY = Array( graph.divider.getNumHints() );
 				</div>
-				<div class="solution" data-forms="integer"><var>QUOTIENT</var></div>
+				<div class="solution" data-type="decimal"><var>QUOTIENT  / pow( 10, QUOTIENT_DECIMAL )</var></div>
 			</div>
 		</div>
 		<div class="hints">
+			<div class="graphie" data-update="numbers">
+				graph.divider.shiftDecimals();
+			</div>
 			<div class="graphie" data-update="numbers" data-each="DUMMY as dummy">
 				graph.divider.showHint();
 			</div>
